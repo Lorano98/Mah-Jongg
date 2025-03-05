@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1,0, user-scalable=no">
+    <title>Mah-Jongg</title>
+
+    <style>
+
+      body{
+        background-color: rgb(225, 183, 141);
+        font-family: Arial;
+        overflow: hidden;
+      }
+
+      h1{
+        text-decoration: underline;
+        text-decoration-color: red;
+        color: #004600;
+      }
+
+      .spieler{
+        width: 100%;
+        margin-bottom: 10px;
+        height: 40px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+      }
+
+      #startButton{
+        width: 100%;
+        height: 50px;
+      }
+
+      #ergebnisDiv, #rechnerDiv{
+        position: absolute;
+        background-color: #ffffffe6;
+        min-width: 100%;
+        min-height: 100%;
+        left: 0;
+        top: 110px;
+        padding: 8px;
+        display: none;
+      }
+
+      #rechnerDiv{
+        top:0;
+        overflow: hidden;
+      }
+
+      table, th, td{
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+
+      th, td{
+        padding: 5px;
+      }
+
+      td{
+        text-align: center;
+      }
+
+      #ergebnisTable{
+        margin: auto;
+        font-size: 12px;
+      }
+
+      #ergebnisDivSchliessen{
+        margin-bottom: 5px;
+        height: 30px;
+      }
+
+      #runde{
+        display: none;
+      }
+
+      #selectWinner{
+        width: 100%;
+        height: 40px;
+        margin-top: 10px;
+      }
+
+      .flexbox{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-bottom: 10px;
+      }
+
+      .spielerCards{
+        width: 138px;
+        background-color: wheat;
+        height: 138px;
+        margin-top: 20px;
+        border-radius: 10px;
+        border: 4px solid white;
+        padding: 5px;
+      }
+
+      .spielerSpan{
+        text-decoration: underline;
+        text-decoration-color: red;
+        color: #004600;
+        font-weight: bold;
+      }
+
+      .spielerCards > div{
+        margin-top: 10px;
+      }
+
+      .spielerCards > div > input{
+        width: 100%;
+        height: 30px;
+      }
+
+      input[type=number] {
+        -moz-appearance: textfield;
+      }
+
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .punkte, .verdoppler{
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+      }
+
+      #ergebnis,#rechner{
+        width: 98%;
+        height: 35px;
+        margin-bottom: 5px;
+      }
+
+      #zurück,#weiter{
+        width: 48%;
+        height: 35px;
+      }
+
+      .rechnerCards{
+        width: calc(100% - 40px);
+        background-color: wheat;
+        min-height: 130px;
+        margin-top: 20px;
+        border-radius: 10px;
+        border: 4px solid white;
+        padding: 5px;
+        border-color: green;
+      }
+
+      .punkteCards{
+        width: 135px;
+        background-color: wheat;
+        margin: 20px 10px 0px 0px;
+        border-radius: 10px;
+        border: 4px solid white;
+        padding: 5px;
+        border-color: green;
+      }
+
+      figure{
+        margin: 10px 5px 0 0;
+        width: fit-content;
+        display: flex;
+        flex-direction: column;
+      }
+
+      figcaption{
+        text-align: center;
+      }
+
+      img{
+        height: 70px;
+      }
+
+      #tiles{
+
+      }
+
+      #tiles > figure > img{
+        height: 40px;
+      }
+
+      #tiles > figure > figcaption{
+        font-size: 13px;
+      }
+
+      .close-button{
+        position: absolute;
+        right: 30px;
+        top: 15px;
+      }
+
+      /* The container */
+      .container {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+        padding-top: 3px;
+        margin-top: 5px;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      /* Hide the browser's default checkbox */
+      .container input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+
+      /* Create a custom checkbox */
+      .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+      }
+
+      /* When the checkbox is checked, add a blue background */
+      .container input:checked ~ .checkmark {
+        background-color: green;
+      }
+
+      /* Create the checkmark/indicator (hidden when not checked) */
+      .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+      }
+
+      /* Show the checkmark when checked */
+      .container input:checked ~ .checkmark:after {
+        display: block;
+      }
+
+      /* Style the checkmark/indicator */
+      .container .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+      }
+
+      #selectPunkteSpieler{
+        width: 60%;
+        height: 30px;
+        margin-top: 10px;
+      }
+
+      #eintragen{
+        height: 30px;
+      }
+
+      #plusEins, #minusEins{
+        margin-top: 20px;
+        margin-right: 2px;
+      }
+
+    </style>
+
+    <script>
+
+      window.onload = function(){
+/*
+        var spielerArray = [
+          {
+            name: "",
+            nummer: 1,
+            punkte: [],
+            winner: false
+          },
+          {
+            name: "",
+            nummer: 2,
+            punkte: [],
+            winner: false
+          },
+          {
+            name: "",
+            nummer: 3,
+            punkte: [],
+            winner: false
+          },
+          {
+            name: "",
+            nummer: 4,
+            punkte: [],
+            winner: false
+          },
+          {
+            getWinner: function(){
+              let winner;
+              spielerArray.forEach(item=>{
+                if(item.winner == true){
+                  winner = item;
+                };
+              });
+              if(winner){
+                return winner;
+              }else{
+                return false;
+              }
+            }
+          }
+        ];
+*/
+        var spieler = [];
+
+        var runden = [];
+
+        var runde = {
+          nummer: 1,
+          winner: "",
+          spieler1: "",
+          spieler2: "",
+          spieler3: "",
+          spieler4: ""
+        }
+
+        var punktAttribute = {
+          punkte: "",
+          verdoppler: "",
+          verdoppeltePunkte: "",
+          verrZeile1: "",
+          verrZeile2: "",
+          verrZeile3: "",
+          ergebnisVerrechnung: "",
+          uebertrag: 0,
+          ergebnis: "",
+  /*
+          doVerdoppeln: function(){
+            this.verdoppeltePunkte = this.punkte * Math.pow(2, this.verdoppler)
+          },
+          doVerrechnung: function(){
+            this.ergebnisVerrechnung = this.verrZeile1 + this.verrZeile2 + this.verrZeile3;
+          },
+          doErgebnis: function(){
+            this.ergebnis = this.ergebnisVerrechnung + this.uebertrag;
+          }
+*/
+        }
+
+        runde.spieler1 = JSON.parse(JSON.stringify(punktAttribute));
+        runde.spieler2 = JSON.parse(JSON.stringify(punktAttribute));
+        runde.spieler3 = JSON.parse(JSON.stringify(punktAttribute));
+        runde.spieler4 = JSON.parse(JSON.stringify(punktAttribute));
+
+        var winnerDiv;
+        var rundennummer = 1;
+
+        var startButton = document.getElementById("startButton");
+        var startDiv = document.getElementById("start");
+        var title =  document.getElementById("title");
+        var rundeDiv = document.getElementById("runde");
+        var selectWinner = document.getElementById("selectWinner");
+        var ergebnisButton = document.getElementById("ergebnis");
+        var ergebnisSchliessenButton = document.getElementById("ergebnisDivSchliessen");
+        var weiterButton = document.getElementById("weiter");
+        var zurückButton = document.getElementById("zurück");
+        var ergebnisTable = document.getElementById("ergebnisTable");
+        var rechnerPunkte = document.getElementById("rechnerPunkte");
+        var selectPunkteSpieler = document.getElementById("selectPunkteSpieler")
+
+        startButton.addEventListener("click", event=>{
+          startDiv.style.display = "none";
+          rundeDiv.style.display = "block";
+
+          spieler[0] = document.getElementById("spieler1").value;
+          spieler[1] = document.getElementById("spieler2").value;
+          spieler[2] = document.getElementById("spieler3").value;
+          spieler[3] = document.getElementById("spieler4").value;
+
+          selectWinner[0].text = spieler[0];
+          selectWinner[1].text = spieler[1];
+          selectWinner[2].text = spieler[2];
+          selectWinner[3].text = spieler[3];
+
+          selectPunkteSpieler[0].text = spieler[0];
+          selectPunkteSpieler[1].text = spieler[1];
+          selectPunkteSpieler[2].text = spieler[2];
+          selectPunkteSpieler[3].text = spieler[3];
+
+          document.getElementById("spieler1Span").innerHTML = spieler[0];
+          document.getElementById("spieler2Span").innerHTML = spieler[1];
+          document.getElementById("spieler3Span").innerHTML = spieler[2];
+          document.getElementById("spieler4Span").innerHTML = spieler[3];
+
+          runden[rundennummer-1] = JSON.parse(JSON.stringify(runde));
+
+        });
+
+        selectWinner.addEventListener("change", event =>{
+
+          ergebnisButton.disabled = false;
+          weiterButton.disabled = false;
+
+          winnerChange(runden,rundennummer);
+
+        });
+
+        zurückButton.addEventListener("click", event => {
+          if(rundennummer == 1){
+            startDiv.style.display = "block";
+            rundeDiv.style.display = "none";
+          }else{
+            rundennummer = rundennummer - 1;
+            title.innerHTML = "Runde " + rundennummer;
+
+            ergebnisButton.disabled = false;
+            weiterButton.disabled = false;
+
+            setInputs(runden,rundennummer);
+
+            selectWinner.value = runden[rundennummer-1].winner;
+            winnerChange(runden,rundennummer);
+
+            createTable(runden,rundennummer,spieler);
+          }
+        });
+
+        weiterButton.addEventListener("click", event => {
+
+          rechnen(runden,rundennummer);
+
+          rundennummer = rundennummer + 1;
+
+          title.innerHTML = "Runde " + rundennummer;
+
+          if(runden[rundennummer-1]){
+            setInputs(runden,rundennummer);
+            selectWinner.value = runden[rundennummer-1].winner;
+
+            if(runden[rundennummer-1].winner != ""){
+              winnerChange(runden,rundennummer);
+            }else{
+              ergebnisButton.disabled = true;
+              weiterButton.disabled = true;
+            }
+
+            createTable(runden,rundennummer,spieler);
+          }else{
+            ergebnisButton.disabled = true;
+            weiterButton.disabled = true;
+
+            document.getElementById("inputPunkte1").value = "";
+            document.getElementById("inputVerdoppler1").value = "";
+            document.getElementById("inputPunkte2").value = "";
+            document.getElementById("inputVerdoppler2").value = "";
+            document.getElementById("inputPunkte3").value = "";
+            document.getElementById("inputVerdoppler3").value = "";
+            document.getElementById("inputPunkte4").value = "";
+            document.getElementById("inputVerdoppler4").value = "";
+
+            Array.from(document.getElementsByClassName("spielerCards")).forEach(item => {
+              item.style.borderColor = "white";
+            })
+
+            selectWinner.value = "0";
+
+            runden[rundennummer-1] = JSON.parse(JSON.stringify(runde));
+          }
+
+        });
+
+        ergebnisButton.addEventListener("click", event =>{
+          winnerChange(runden,rundennummer);
+          rechnen(runden,rundennummer);
+
+          document.getElementById("ergebnisDiv").style.display = "block";
+
+          createTable(runden,rundennummer,spieler);
+
+          
+
+        })//ergebnis Button
+
+        ergebnisSchliessenButton.addEventListener("click", event=>{
+          ergebnisDiv.style.display = "none";
+        })
+
+        document.getElementById("rechner").addEventListener("click", event=>{
+          rechnerDiv.style.display = "block";
+        })
+
+        document.getElementById("close-rechner").addEventListener("click", event=>{
+          rechnerDiv.style.display = "none";
+        })
+
+        document.getElementById("plusEins").addEventListener("click", event=>{
+          rechnerVerdoppler.innerHTML = parseInt(rechnerVerdoppler.innerHTML) + 1;
+        })
+
+        document.getElementById("minusEins").addEventListener("click", event=>{
+          rechnerVerdoppler.innerHTML = parseInt(rechnerVerdoppler.innerHTML) - 1;
+        })
+
+        selectPunkteSpieler.addEventListener("change", event=>{
+          if(event.target.value != "0"){
+            document.getElementById("eintragen").disabled = false;
+          }else{
+            document.getElementById("eintragen").disabled = true;
+          }
+        })
+
+        document.getElementById("eintragen").addEventListener("click", event=>{
+          document.getElementById("inputPunkte" + selectPunkteSpieler.value).value = rechnerPunkte.innerHTML
+          document.getElementById("inputVerdoppler" + selectPunkteSpieler.value).value = rechnerVerdoppler.innerHTML
+
+          rechnerPunkte.innerHTML = 0;
+          rechnerVerdoppler.innerHTML = 0;
+          document.getElementById("tiles").innerHTML = "";
+          rechnerDiv.style.display = "none";
+
+          document.querySelectorAll(".container input").forEach(item=>{
+            item.checked = false;
+          })
+          selectPunkteSpieler.value = "0";
+        })
+
+      }//Onload
+
+      function rechnen(runden,rundennummer){
+        runden[rundennummer-1].spieler1.punkte = document.getElementById("inputPunkte1").value;
+        runden[rundennummer-1].spieler1.verdoppler = document.getElementById("inputVerdoppler1").value;
+
+        runden[rundennummer-1].spieler2.punkte = document.getElementById("inputPunkte2").value;
+        runden[rundennummer-1].spieler2.verdoppler = document.getElementById("inputVerdoppler2").value;
+        runden[rundennummer-1].spieler3.punkte = document.getElementById("inputPunkte3").value;
+        runden[rundennummer-1].spieler3.verdoppler = document.getElementById("inputVerdoppler3").value;
+        runden[rundennummer-1].spieler4.punkte = document.getElementById("inputPunkte4").value;
+        runden[rundennummer-1].spieler4.verdoppler = document.getElementById("inputVerdoppler4").value;
+
+        runden[rundennummer-1].spieler1.verdoppeltePunkte = runden[rundennummer-1].spieler1.punkte * Math.pow(2, runden[rundennummer-1].spieler1.verdoppler)
+        runden[rundennummer-1].spieler2.verdoppeltePunkte = runden[rundennummer-1].spieler2.punkte * Math.pow(2, runden[rundennummer-1].spieler2.verdoppler)
+        runden[rundennummer-1].spieler3.verdoppeltePunkte = runden[rundennummer-1].spieler3.punkte * Math.pow(2, runden[rundennummer-1].spieler3.verdoppler)
+        runden[rundennummer-1].spieler4.verdoppeltePunkte = runden[rundennummer-1].spieler4.punkte * Math.pow(2, runden[rundennummer-1].spieler4.verdoppler)
+
+        let currentWinner = runden[rundennummer-1].winner;
+        let numberArray = [1,2,3,4];
+
+        runden[rundennummer-1]["spieler" + currentWinner].verrZeile1 = runden[rundennummer-1]["spieler" + currentWinner].verdoppeltePunkte;
+        runden[rundennummer-1]["spieler" + currentWinner].verrZeile2 = runden[rundennummer-1]["spieler" + currentWinner].verdoppeltePunkte;
+        runden[rundennummer-1]["spieler" + currentWinner].verrZeile3 = runden[rundennummer-1]["spieler" + currentWinner].verdoppeltePunkte;
+
+        numberArray.splice(currentWinner-1,1);
+
+        let numberArraySp1 = runden[rundennummer-1]["spieler" + numberArray[0]];
+        let numberArraySp2 = runden[rundennummer-1]["spieler" + numberArray[1]];
+        let numberArraySp3 = runden[rundennummer-1]["spieler" + numberArray[2]];
+
+        numberArraySp1.verrZeile1 = runden[rundennummer-1]["spieler" + currentWinner].verdoppeltePunkte * (-1);
+        numberArraySp2.verrZeile1 = runden[rundennummer-1]["spieler" + currentWinner].verdoppeltePunkte * (-1);
+        numberArraySp3.verrZeile1 = runden[rundennummer-1]["spieler" + currentWinner].verdoppeltePunkte * (-1);
+
+        numberArraySp1.verrZeile2= numberArraySp1.verdoppeltePunkte - numberArraySp2.verdoppeltePunkte;
+        numberArraySp2.verrZeile2= numberArraySp2.verdoppeltePunkte - numberArraySp3.verdoppeltePunkte;
+        numberArraySp3.verrZeile2= numberArraySp3.verdoppeltePunkte - numberArraySp1.verdoppeltePunkte;
+
+        numberArraySp1.verrZeile3= numberArraySp1.verdoppeltePunkte - numberArraySp3.verdoppeltePunkte;
+        numberArraySp2.verrZeile3= numberArraySp2.verdoppeltePunkte - numberArraySp1.verdoppeltePunkte;
+        numberArraySp3.verrZeile3= numberArraySp3.verdoppeltePunkte - numberArraySp2.verdoppeltePunkte;
+
+        runden[rundennummer-1].spieler1.ergebnisVerrechnung = runden[rundennummer-1].spieler1.verrZeile1 + runden[rundennummer-1].spieler1.verrZeile2 + runden[rundennummer-1].spieler1.verrZeile3;
+        runden[rundennummer-1].spieler2.ergebnisVerrechnung = runden[rundennummer-1].spieler2.verrZeile1 + runden[rundennummer-1].spieler2.verrZeile2 + runden[rundennummer-1].spieler2.verrZeile3;
+        runden[rundennummer-1].spieler3.ergebnisVerrechnung = runden[rundennummer-1].spieler3.verrZeile1 + runden[rundennummer-1].spieler3.verrZeile2 + runden[rundennummer-1].spieler3.verrZeile3;
+        runden[rundennummer-1].spieler4.ergebnisVerrechnung = runden[rundennummer-1].spieler4.verrZeile1 + runden[rundennummer-1].spieler4.verrZeile2 + runden[rundennummer-1].spieler4.verrZeile3;
+
+        if(rundennummer != 1){
+          runden[rundennummer-1].spieler1.uebertrag = runden[rundennummer-2].spieler1.ergebnis;
+          runden[rundennummer-1].spieler2.uebertrag = runden[rundennummer-2].spieler2.ergebnis;
+          runden[rundennummer-1].spieler3.uebertrag = runden[rundennummer-2].spieler3.ergebnis;
+          runden[rundennummer-1].spieler4.uebertrag = runden[rundennummer-2].spieler4.ergebnis;
+        }
+
+        runden[rundennummer-1].spieler1.ergebnis = runden[rundennummer-1].spieler1.ergebnisVerrechnung + runden[rundennummer-1].spieler1.uebertrag;
+        runden[rundennummer-1].spieler2.ergebnis = runden[rundennummer-1].spieler2.ergebnisVerrechnung + runden[rundennummer-1].spieler2.uebertrag;
+        runden[rundennummer-1].spieler3.ergebnis = runden[rundennummer-1].spieler3.ergebnisVerrechnung + runden[rundennummer-1].spieler3.uebertrag;
+        runden[rundennummer-1].spieler4.ergebnis = runden[rundennummer-1].spieler4.ergebnisVerrechnung + runden[rundennummer-1].spieler4.uebertrag;
+      }
+
+      function setInputs(runden,rundennummer){
+        document.getElementById("inputPunkte1").value = runden[rundennummer-1].spieler1.punkte;
+        document.getElementById("inputVerdoppler1").value = runden[rundennummer-1].spieler1.verdoppler;
+        document.getElementById("inputPunkte2").value = runden[rundennummer-1].spieler2.punkte;
+        document.getElementById("inputVerdoppler2").value = runden[rundennummer-1].spieler2.verdoppler;
+        document.getElementById("inputPunkte3").value = runden[rundennummer-1].spieler3.punkte;
+        document.getElementById("inputVerdoppler3").value = runden[rundennummer-1].spieler3.verdoppler;
+        document.getElementById("inputPunkte4").value = runden[rundennummer-1].spieler4.punkte;
+        document.getElementById("inputVerdoppler4").value = runden[rundennummer-1].spieler4.verdoppler;
+      }
+
+      function winnerChange(runden,rundennummer){
+/*
+        for(var i = 0; i < 4; i++) {
+          spielerArray[i].winner = false;
+        };
+*/
+//        spielerArray[selectWinner.value-1].winner = true;
+        runden[rundennummer-1].winner = selectWinner.value;
+/*
+        if(this.winnerDiv){
+          this.winnerDiv.style.borderColor = "white";
+        };
+        this.winnerDiv = document.getElementsByClassName("spielerCards").item(selectWinner.value-1);
+*/
+        Array.from(document.getElementsByClassName("spielerCards")).forEach(item => {
+          item.style.borderColor = "white";
+        })
+
+        document.getElementsByClassName("spielerCards").item(selectWinner.value-1).style.borderColor = "green";
+      }
+
+      function createTable(runden,rundennummer, spieler){
+        let currentSpieler1 = runden[rundennummer-1].spieler1;
+        let currentSpieler2 = runden[rundennummer-1].spieler2;
+        let currentSpieler3 = runden[rundennummer-1].spieler3;
+        let currentSpieler4 = runden[rundennummer-1].spieler4;
+
+        ergebnisTable.innerHTML = '<tr>                                                                           '
+                    +'			        <th></th>                                                            '
+                    +'			        <th>'+spieler[0]+'</th>                                        '
+                    +'			        <th>'+spieler[1]+'</th>                                       '
+                    +'			        <th>'+spieler[2]+'</th>                                       '
+                    +'			        <th>'+spieler[3]+'</th>                                       '
+                    +'			      </tr>                                                                  '
+                    +'            <tr>                                               '
+                    +'              <td>Punkte</td>                                                   '
+                    +'              <td>'+currentSpieler1.punkte+'</td>                                   '
+                    +'              <td>'+currentSpieler2.punkte+'</td>                                   '
+                    +'              <td>'+currentSpieler3.punkte+'</td>                                   '
+                    +'              <td>'+currentSpieler4.punkte+'</td>                                   '
+                    +'            </tr>                                                               '
+                    +'            <tr>                                                                '
+                    +'              <td>Verdoppler</td>                                               '
+                    +'              <td>'+currentSpieler1.verdoppler+'</td>                               '
+                    +'              <td>'+currentSpieler2.verdoppler+'</td>                               '
+                    +'              <td>'+currentSpieler3.verdoppler+'</td>                               '
+                    +'              <td>'+currentSpieler4.verdoppler+'</td>                               '
+                    +'            </tr>                                                               '
+                    +'            <tr>                                                                '
+                    +'              <td>Ergebnis</td>                                                 '
+                    +'              <td>'+currentSpieler1.verdoppeltePunkte+'</td>                        '
+                    +'              <td>'+currentSpieler2.verdoppeltePunkte+'</td>                        '
+                    +'              <td>'+currentSpieler3.verdoppeltePunkte+'</td>                        '
+                    +'              <td>'+currentSpieler4.verdoppeltePunkte+'</td>                        '
+                    +'            </tr>                                                               '
+                    +'            <tr>                                                                '
+                    +'              <td>Verrechnung</td>                                              '
+                    +'              <td>'+currentSpieler1.verrZeile1+'</td>                       '
+                    +'              <td>'+currentSpieler2.verrZeile1+'</td>                       '
+                    +'              <td>'+currentSpieler3.verrZeile1+'</td>                       '
+                    +'              <td>'+currentSpieler4.verrZeile1+'</td>                       '
+                    +'            </tr>                                                               '
+                    +'            <tr>                                                                '
+                    +'     		  <td></td>                                                         '
+                    +'              <td>'+currentSpieler1.verrZeile2+'</td>                       '
+                    +'              <td>'+currentSpieler2.verrZeile2+'</td>                       '
+                    +'              <td>'+currentSpieler3.verrZeile2+'</td>                       '
+                    +'              <td>'+currentSpieler4.verrZeile2+'</td>                       '
+                    +'            </tr>                                                               '
+                    +'            <tr>                                                                '
+                    +'              <td></td>                                                         '
+                    +'              <td>'+currentSpieler1.verrZeile3+'</td>                       '
+                    +'              <td>'+currentSpieler2.verrZeile3+'</td>                       '
+                    +'              <td>'+currentSpieler3.verrZeile3+'</td>                       '
+                    +'              <td>'+currentSpieler4.verrZeile3+'</td>                       '
+                    +'            </tr>                                                               '
+                    +'            <tr>                                                                '
+                    +'              <td>Ergebnis</td>                                                 '
+                    +'              <td>'+currentSpieler1.ergebnisVerrechnung+'</td>                      '
+                    +'              <td>'+currentSpieler2.ergebnisVerrechnung+'</td>                      '
+                    +'              <td>'+currentSpieler3.ergebnisVerrechnung+'</td>                      '
+                    +'              <td>'+currentSpieler4.ergebnisVerrechnung+'</td>                      '
+                    +'            </tr>                                                               '
+                    +'            <tr>                                                                '
+                    +'              <td>Übertrag</td>                                                 '
+                    +'              <td>'+currentSpieler1.uebertrag+'</td>                                 '
+                    +'              <td>'+currentSpieler2.uebertrag+'</td>                                 '
+                    +'              <td>'+currentSpieler3.uebertrag+'</td>                                 '
+                    +'              <td>'+currentSpieler4.uebertrag+'</td>                                 '
+                    +'            </tr>                                                               '
+                    +'            <tr>                                                                '
+                    +'              <td>Gesamt</td>                                                   '
+                    +'              <td>'+currentSpieler1.ergebnis+'</td>                                 '
+                    +'              <td>'+currentSpieler2.ergebnis+'</td>                                 '
+                    +'              <td>'+currentSpieler3.ergebnis+'</td>                                 '
+                    +'              <td>'+currentSpieler4.ergebnis+'</td>                                 '
+                    +'            </tr>                                                               ';
+      }
+
+      function tileClick(event,zeiger,verdeckt){
+        [points,verdoppler] = zeiger.split('.').reduce((obj, key) => obj && obj[key], katalog);
+        let img;
+        if(verdeckt){
+          img = '<img id="' + zeiger + '" src="' + event.target.src + '" style="opacity: 50%;">'
+        }else{
+          img = '<img id="' + zeiger + '" src="' + event.target.src + '">'
+        }
+
+        let newTile = '<figure onClick="deleteTile(event)">'
+          + img
+          + '<figcaption>' + event.target.name + '</figcaption>'
+          + '<figcaption>' + points + ', ' + verdoppler + '</figcaption>'
+          //+ '<figcaption>' + verdoppler + '</figcaption>'
+          + '</figure>';
+
+        document.getElementById("tiles").innerHTML += newTile;
+        rechnerPunkte.innerHTML = parseInt(rechnerPunkte.innerHTML) + points;
+        rechnerVerdoppler.innerHTML = parseInt(rechnerVerdoppler.innerHTML) + verdoppler;
+      }
+
+      function deleteTile(event){
+        [points,verdoppler] = event.target.id.split('.').reduce((obj, key) => obj && obj[key], katalog);
+        event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+        rechnerPunkte.innerHTML = parseInt(rechnerPunkte.innerHTML) - points;
+        rechnerVerdoppler.innerHTML = parseInt(rechnerVerdoppler.innerHTML) - verdoppler;
+        //rechnerPunkte.innerHTML = parseInt(rechnerPunkte.innerHTML) - parseInt(event.target.nextElementSibling.nextElementSibling.innerHTML);
+        //rechnerVerdoppler.innerHTML = parseInt(rechnerVerdoppler.innerHTML) - parseInt(event.target.nextElementSibling.nextElementSibling.nextElementSibling.innerHTML);
+      }
+
+      function checkBoxChange(event, zeiger){
+        points = zeiger.split('.').reduce((obj, key) => obj && obj[key], katalog);
+        if(event.target.checked){
+          rechnerPunkte.innerHTML = parseInt(rechnerPunkte.innerHTML) + points;
+        }else{
+          rechnerPunkte.innerHTML = parseInt(rechnerPunkte.innerHTML) - points;
+        }
+      }
+
+    </script>
+  </head>
+  <script>
+    const katalog = {
+          pon:{
+            offen:{
+              19: [4,0],
+              28: [2,0],
+              wind: [4,1],
+              platz_o_runden_wind: [4,2],
+              platz_u_runden_wind: [4,3],
+              drache: [4,1],
+            },
+            verdeckt:{
+              19: [8,0],
+              28: [4,0],
+              wind: [8,1],
+              platz_o_runden_wind: [8,2],
+              platz_u_runden_wind: [8,3],
+              drache: [8,1],
+            }
+          },
+          kahn:{
+            offen:{
+              19: [16,1],
+              28: [8,1],
+              wind: [16,2],
+              platz_o_runden_wind: [16,3],
+              platz_u_runden_wind: [16,4],
+              drache: [16,2],
+            },
+            halbverdeckt:{
+              19: [32,1],
+              28: [16,1],
+              wind: [16,2],
+              platz_o_runden_wind: [32,3],
+              platz_u_runden_wind: [32,4],
+              drache: [32,2],
+            }
+          },
+          paar:[2,0],
+          blume:{
+            fremder_wind: [4,0],
+            eigener_wind: [4,1]
+          },
+          gewinnerextras:{
+            gewinner: 20,
+            aus_hand: 20,
+            nur_chis: 20,
+            nur_grundfarben: 20,
+            nur_pons: 2,
+            schlussziegel:{
+              lebende_mauer: 2,
+              letzter_ziegel: 4,
+              tote_mauer: 4,
+              vervollständigt_pärchen: 2,
+              vervollständigt_chi_mitte: 2
+            },
+            schlusspärchen:{
+              wind_drache: 2,
+              platz_o_runden_wind: 4
+            }
+          }
+        }
+  </script>
+
+  <body>
+    <div id="Majong">
+      <h1>Mah-Jongg:</h1>
+    </div>
+    <div id="start">
+      <h3>Spieler</h3>
+      <form>
+        <input id="spieler1" class="spieler" type="text" placeholder="Spieler 1" value="spieler1" onClick="this.form.spieler1.select()"><br>
+        <input id="spieler2" class="spieler" type="text" placeholder="Spieler 2" value="spieler2" onClick="this.form.spieler2.select()"><br>
+        <input id="spieler3" class="spieler" type="text" placeholder="Spieler 3" value="spieler3" onClick="this.form.spieler3.select()"><br>
+        <input id="spieler4" class="spieler" type="text" placeholder="Spieler 4" value="spieler4" onClick="this.form.spieler4.select()"><br>
+      </form>
+      <button id="startButton">Start</button>
+    </div>
+    <div id="ergebnisDiv">
+      <button id="ergebnisDivSchliessen">Ergebnis schließen</button>
+      <table id="ergebnisTable"></table>
+    </div>
+    <div id="rechnerDiv">
+      <button id="close-rechner" class="close-button">X</button>
+      <div style="display: flex; flex-wrap: wrap; justify-content: flex-start; margin-top: 20px;">
+        <div class="punkteCards">
+          <span class="spielerSpan">Punkte: </span><span id="rechnerPunkte">0</span>
+        </div>
+        <div class="punkteCards">
+          <span class="spielerSpan">Verdoppler: </span><span id="rechnerVerdoppler">0</span>
+        </div>
+        <button id="plusEins">+1</button>
+        <button id="minusEins">-1</button>
+      </div>
+      <div>
+        Für:
+        <select id="selectPunkteSpieler">
+          <option value="1"></option>
+          <option value="2"></option>
+          <option value="3"></option>
+          <option value="4"></option>
+          <option value="0" hidden disabled selected value></option>
+        </select>
+        <button id="eintragen" disabled>Eintragen</button>
+      </div>
+      <div class="rechnerCards">
+        <span class="spielerSpan">Hand:</span>
+        <div id="tiles" style="display: flex;flex-wrap: wrap;justify-content: left"></div>
+      </div>
+      <div style="overflow: scroll; height: calc(100vh - 300px);">
+        <div class="rechnerCards">
+          <span class="spielerSpan">Pon:</span><br>
+          Offen:
+          <div style="display: flex;flex-wrap: wrap;justify-content: space-around">
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/MJt1-.svg/42px-MJt1-.svg.png" name="Pon" onClick="tileClick(event,'pon.offen.19',0)">
+              <figcaption>1 / 9</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/MJt5-.svg/42px-MJt5-.svg.png" name="Pon" onClick="tileClick(event,'pon.offen.28',0)">
+              <figcaption>2 - 8</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Pon" onClick="tileClick(event,'pon.offen.wind',0)">
+              <figcaption>Wind</figcaption>
+            </figure>
+            <!--<figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Pon" onClick="tileClick(event,'pon.offen.platz_o_runden_wind',0)">
+              <figcaption>Platz-/Runden-<br>Wind</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Pon" onClick="tileClick(event,'pon.offen.platz_u_runden_wind',0)">
+              <figcaption>Platz-&Runden-<br>Wind</figcaption>
+            </figure>-->
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/MJd1-.svg" name="Pon" onClick="tileClick(event,'pon.offen.drache',0)">
+              <figcaption>Drache</figcaption>
+            </figure>
+            
+          </div>
+          Verdeckt:
+          <div style="display: flex;flex-wrap: wrap;justify-content: space-around">
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/MJt1-.svg/42px-MJt1-.svg.png" name="Pon" onClick="tileClick(event,'pon.verdeckt.19',1)" style="opacity: 50%;">
+              <figcaption>1 / 9</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/MJt5-.svg/42px-MJt5-.svg.png" name="Pon" onClick="tileClick(event,'pon.verdeckt.28',1)" style="opacity: 50%;">
+              <figcaption>2 - 8</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Pon" onClick="tileClick(event,'pon.verdeckt.wind',1)" style="opacity: 50%;">
+              <figcaption>Wind</figcaption>
+            </figure>
+            <!--<figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Pon" onClick="tileClick(event,'pon.verdeckt.platz_o_runden_wind',1)" style="opacity: 50%;">
+              <figcaption>Platz-/Runden-<br>Wind</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Pon" onClick="tileClick(event,'pon.verdeckt.platz_u_runden_wind',1)" style="opacity: 50%;">
+              <figcaption>Platz-&Runden-<br>Wind</figcaption>
+            </figure>-->
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/MJd1-.svg" name="Pon" onClick="tileClick(event,'pon.verdeckt.drache',1)" style="opacity: 50%;">
+              <figcaption>Drache</figcaption>
+            </figure>    
+          </div>
+        </div>
+        <div class="rechnerCards">
+          <span class="spielerSpan">Kahn:</span><br>
+          Offen:
+          <div style="display: flex;flex-wrap: wrap;justify-content: space-around">
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/MJt1-.svg/42px-MJt1-.svg.png" name="Kahn" onClick="tileClick(event,'kahn.offen.19',0)">
+              <figcaption>1 / 9</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/MJt5-.svg/42px-MJt5-.svg.png" name="Kahn" onClick="tileClick(event,'kahn.offen.28',0)">
+              <figcaption>2 - 8</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Kahn" onClick="tileClick(event,'kahn.offen.wind',0)">
+              <figcaption>Wind</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/MJd1-.svg" name="Kahn" onClick="tileClick(event,'kahn.offen.drache',0)">
+              <figcaption>Drache</figcaption>
+            </figure>
+            
+          </div>
+          Halbverdeckt:
+          <div style="display: flex;flex-wrap: wrap;justify-content: space-around">
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/MJt1-.svg/42px-MJt1-.svg.png" name="Kahn" onClick="tileClick(event,'kahn.halbverdeckt.19',1)" style="opacity: 50%;">
+              <figcaption>1 / 9</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/MJt5-.svg/42px-MJt5-.svg.png" name="Kahn" onClick="tileClick(event,'kahn.halbverdeckt.28',1)" style="opacity: 50%;">
+              <figcaption>2 - 8</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Kahn" onClick="tileClick(event,'kahn.halbverdeckt.wind',1)" style="opacity: 50%;">
+              <figcaption>Wind</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/MJd1-.svg" name="Kahn" onClick="tileClick(event,'kahn.halbverdeckt.drache',1)" style="opacity: 50%;">
+              <figcaption>Drache</figcaption>
+            </figure>    
+          </div>
+        </div>
+        <div class="rechnerCards">
+          <span class="spielerSpan">Paar:</span><span style="font-size:10px"> (nur für Verlierer angeben)</span><br>
+          <div style="display: flex;flex-wrap: wrap;justify-content: space-around">
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/MJf2-.svg" name="Paar" onClick="tileClick(event,'paar')">
+              <figcaption>Platz-/Runden-<br>Wind</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/MJd1-.svg" name="Paar" onClick="tileClick(event,'paar')">
+              <figcaption>Drache</figcaption>
+            </figure>
+          </div>
+        </div>
+        <div class="rechnerCards">
+          <span class="spielerSpan">Blume:</span><br>
+          <div style="display: flex;flex-wrap: wrap;justify-content: space-around">
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/MJh5j-.svg/800px-MJh5j-.svg.png" name="Blume" onClick="tileClick(event,'blume.fremder_wind')">
+              <figcaption>Fremder<br>Wind</figcaption>
+            </figure>
+            <figure>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/MJh4j-.svg/42px-MJh4j-.svg.png" name="Blume" onClick="tileClick(event,'blume.eigener_wind')">
+              <figcaption>Eigener<br>Wind</figcaption>
+            </figure>
+          </div>
+        </div>
+        <div class="rechnerCards">
+          <span class="spielerSpan">Prämienpunkte für Gewinner:</span><br>
+          <label class="container">"Mah-Jongg-Ruf"
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.gewinner')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Aus der Hand
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.aus_hand')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Nur Chis und Schlusspärchen aus Grundfarben
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.nur_chis')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Nur Grundfarben, aber keine 1 und 9
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.nur_grundfarben')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Nur Pons und Schlusspärchen
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.nur_pons')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Schlussziegel von der lebenden Mauer
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.schlussziegel.lebende_mauer')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Schlussziegel ist der letzte Ziegel aus der lebenden Mauer
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.schlussziegel.letzter_ziegel')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Schlussziegel von der toten Mauer
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.schlussziegel.tote_mauer')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Schlussziegel vervollständigt das Schlusspärchen
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.schlussziegel.vervollständigt_pärchen')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Schlussziegel vervollständigt Chi als mittlerer Ziegel
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.schlussziegel.vervollständigt_chi_mitte')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Schlusspärchen aus Winden und Drachen
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.schlusspärchen.wind_drache')">
+            <span class="checkmark"></span>
+          </label>
+          <label class="container">Schlusspärchen aus Platz- oder Rundenwinden
+            <input type="checkbox" onChange="checkBoxChange(event, 'gewinnerextras.schlusspärchen.platz_o_runden_wind')">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div id="runde">
+      <h3 id="title">Runde 1</h3>
+      Gewinner: <br>
+      <select id="selectWinner">
+        <option value="1">test</option>
+        <option value="2"></option>
+        <option value="3"></option>
+        <option value="4"></option>
+        <option value="0" hidden disabled selected value></option>
+      </select>
+      <div class="flexbox">
+        <div class="spielerCards">
+          <span id="spieler1Span" class="spielerSpan"></span><br>
+          <div>
+            Punkte:
+            <input id="inputPunkte1" type="number" class="punkte">
+          </div>
+          <div>
+            Verdoppler:
+            <input id="inputVerdoppler1" type="number" class="verdoppler">
+          </div>
+        </div>
+
+        <div class="spielerCards">
+          <span id="spieler2Span" class="spielerSpan"></span><br>
+          <div>
+            Punkte:
+            <input id="inputPunkte2" type="number" class="punkte">
+          </div>
+          <div>
+            Verdoppler:
+            <input id="inputVerdoppler2" type="number" class="verdoppler">
+          </div>
+        </div>
+
+        <div class="spielerCards">
+          <span id="spieler3Span" class="spielerSpan"></span><br>
+          <div>
+            Punkte:
+            <input id="inputPunkte3" type="number" class="punkte">
+          </div>
+          <div>
+            Verdoppler:
+            <input id="inputVerdoppler3" type="number" class="verdoppler">
+          </div>
+        </div>
+
+        <div class="spielerCards">
+          <span id="spieler4Span" class="spielerSpan"></span><br>
+          <div>
+            Punkte:
+            <input id="inputPunkte4" type="number" class="punkte">
+          </div>
+          <div>
+            Verdoppler:
+            <input id="inputVerdoppler4" type="number" class="verdoppler">
+          </div>
+        </div>
+
+      </div>
+      <div class="flexbox">
+        <button id="rechner">Rechner</button>
+        <button id="ergebnis" disabled>Ergebnis</button>
+        <button id="zurück">Zurück</button>
+        <button id="weiter" disabled>Weiter</button>
+      </div>
+    </div>
+  </body>
+
+</html>
