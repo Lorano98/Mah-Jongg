@@ -29,7 +29,7 @@
         -webkit-box-sizing: border-box;
       }
 
-      #startButton{
+      #startButton, #deleteAllButton{
         width: 100%;
         height: 50px;
       }
@@ -279,6 +279,26 @@
 
     <script>
 
+      // Globale Variablen (außerhalb von window.onload)
+      var spieler = [];
+      var runden = [];
+      var rundennummer;
+
+      var startButton;
+      var deleteAllButton;
+      var startDiv;
+      var title;
+      var rundeDiv;
+      var selectWinner;
+      var ergebnisButton;
+      var ergebnisSchliessenButton;
+      var weiterButton;
+      var zurückButton;
+      var ergebnisTable;
+      var rechnerPunkte;
+      var selectPunkteSpieler;
+
+
       window.onload = function(){
 /*
         var spielerArray = [
@@ -323,9 +343,9 @@
           }
         ];
 */
-        var spieler = [];
+        //var spieler = [];
 
-        var runden = [];
+        //var runden = [];
 
         var runde = {
           nummer: 1,
@@ -365,20 +385,21 @@
         runde.spieler4 = JSON.parse(JSON.stringify(punktAttribute));
 
         var winnerDiv;
-        var rundennummer = 1;
+        rundennummer = 1;
 
-        var startButton = document.getElementById("startButton");
-        var startDiv = document.getElementById("start");
-        var title =  document.getElementById("title");
-        var rundeDiv = document.getElementById("runde");
-        var selectWinner = document.getElementById("selectWinner");
-        var ergebnisButton = document.getElementById("ergebnis");
-        var ergebnisSchliessenButton = document.getElementById("ergebnisDivSchliessen");
-        var weiterButton = document.getElementById("weiter");
-        var zurückButton = document.getElementById("zurück");
-        var ergebnisTable = document.getElementById("ergebnisTable");
-        var rechnerPunkte = document.getElementById("rechnerPunkte");
-        var selectPunkteSpieler = document.getElementById("selectPunkteSpieler")
+        startButton = document.getElementById("startButton");
+        deleteAllButton = document.getElementById("deleteAllButton");
+        startDiv = document.getElementById("start");
+        title =  document.getElementById("title");
+        rundeDiv = document.getElementById("runde");
+        selectWinner = document.getElementById("selectWinner");
+        ergebnisButton = document.getElementById("ergebnis");
+        ergebnisSchliessenButton = document.getElementById("ergebnisDivSchliessen");
+        weiterButton = document.getElementById("weiter");
+        zurückButton = document.getElementById("zurück");
+        ergebnisTable = document.getElementById("ergebnisTable");
+        rechnerPunkte = document.getElementById("rechnerPunkte");
+        selectPunkteSpieler = document.getElementById("selectPunkteSpieler")
 
         startButton.addEventListener("click", event=>{
           startDiv.style.display = "none";
@@ -408,6 +429,13 @@
 
         });
 
+        deleteAllButton.addEventListener("click", event => {
+          localStorage.clear();
+          spieler = [];
+          runden = [];
+          rundennummer;
+        });
+
         selectWinner.addEventListener("change", event =>{
 
           ergebnisButton.disabled = false;
@@ -422,6 +450,9 @@
             startDiv.style.display = "block";
             rundeDiv.style.display = "none";
           }else{
+            startDiv.style.display = "none";
+            rundeDiv.style.display = "block";
+
             rundennummer = rundennummer - 1;
             title.innerHTML = "Runde " + rundennummer;
 
@@ -479,6 +510,8 @@
             runden[rundennummer-1] = JSON.parse(JSON.stringify(runde));
           }
 
+          saveData(spieler, runden, rundennummer);
+
         });
 
         ergebnisButton.addEventListener("click", event =>{
@@ -535,6 +568,8 @@
           })
           selectPunkteSpieler.value = "0";
         })
+
+        loadData();
 
       }//Onload
 
@@ -746,6 +781,59 @@
         }
       }
 
+      function saveData(spieler, runden, rundennummer) {
+        localStorage.setItem("mahjonggSpieler", JSON.stringify(spieler));
+        localStorage.setItem("mahjonggRunden", JSON.stringify(runden));
+        localStorage.setItem("mahjonggRundennummer", rundennummer);
+      }
+
+      function loadData() {
+        const savedSpieler = localStorage.getItem("mahjonggSpieler");
+        const savedRunden = localStorage.getItem("mahjonggRunden");
+        const savedRundennummer = localStorage.getItem("mahjonggRundennummer");
+
+        if(savedSpieler && savedRunden && savedRundennummer){
+          spieler = JSON.parse(savedSpieler);
+          runden = JSON.parse(savedRunden);
+          rundennummer = parseInt(savedRundennummer)-1;
+
+          if(rundennummer == 0){
+              startDiv.style.display = "block";
+              rundeDiv.style.display = "none";
+            }else{
+              startDiv.style.display = "none";
+              rundeDiv.style.display = "block";
+
+              title.innerHTML = "Runde " + rundennummer;
+
+              ergebnisButton.disabled = false;
+              weiterButton.disabled = false;
+
+              selectWinner[0].text = spieler[0];
+              selectWinner[1].text = spieler[1];
+              selectWinner[2].text = spieler[2];
+              selectWinner[3].text = spieler[3];
+
+              selectPunkteSpieler[0].text = spieler[0];
+              selectPunkteSpieler[1].text = spieler[1];
+              selectPunkteSpieler[2].text = spieler[2];
+              selectPunkteSpieler[3].text = spieler[3];
+
+              document.getElementById("spieler1Span").innerHTML = spieler[0];
+              document.getElementById("spieler2Span").innerHTML = spieler[1];
+              document.getElementById("spieler3Span").innerHTML = spieler[2];
+              document.getElementById("spieler4Span").innerHTML = spieler[3];
+
+              setInputs(runden,rundennummer);
+
+              selectWinner.value = runden[rundennummer-1].winner;
+              winnerChange(runden,rundennummer);
+
+              createTable(runden,rundennummer,spieler);
+            }
+        }
+      }
+
     </script>
   </head>
   <script>
@@ -825,6 +913,9 @@
         <input id="spieler4" class="spieler" type="text" placeholder="Spieler 4" value="spieler4" onClick="this.form.spieler4.select()"><br>
       </form>
       <button id="startButton">Start</button>
+      <br>
+      <br>
+      <button id="deleteAllButton">Alle Daten löschen</button>
     </div>
     <div id="ergebnisDiv">
       <button id="ergebnisDivSchliessen">Ergebnis schließen</button>
