@@ -425,8 +425,10 @@
           document.getElementById("spieler3Span").innerHTML = spieler[2];
           document.getElementById("spieler4Span").innerHTML = spieler[3];
 
-          runden[rundennummer-1] = JSON.parse(JSON.stringify(runde));
-
+          if(!runden[rundennummer-1]){
+            runden[rundennummer-1] = JSON.parse(JSON.stringify(runde));
+          }
+          
         });
 
         deleteAllButton.addEventListener("click", event => {
@@ -434,6 +436,7 @@
           spieler = [];
           runden = [];
           rundennummer;
+          window.location.reload();
         });
 
         selectWinner.addEventListener("change", event =>{
